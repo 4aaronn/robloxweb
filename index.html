@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RobloxTradeHub - Live Trading Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --dark: #0f172a;
+            --dark-light: #1e293b;
+            --text: #f8fafc;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--dark);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #334155;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #1d4ed8);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn-secondary {
+            background: var(--dark-light);
+            color: var(--text);
+            border: 1px solid #334155;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--dark-light);
+            padding: 5px 15px 5px 5px;
+            border-radius: 50px;
+            border: 1px solid #334155;
+        }
+        
+        .avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            overflow: hidden;
+        }
+        
+        /* Main Content */
+        main {
+            padding: 30px 0;
+        }
+        
+        .ticker {
+            background: linear-gradient(90deg, #1e3a8a, #3730a3);
+            padding: 10px 0;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        .ticker-content {
+            display: flex;
+            animation: ticker 30s linear infinite;
+            white-space: nowrap;
+        }
+        
+        .ticker-item {
+            padding: 0 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        .verification-banner {
+            background: linear-gradient(90deg, #1e293b, #334155);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .verification-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .verification-icon {
+            background: rgba(16, 185, 129, 0.2);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--success);
+            font-size: 1.5rem;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .game-filter {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 5px 0 20px;
+            margin-bottom: 20px;
+        }
+        
+        .game-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            white-space: nowrap;
+            font-weight: 600;
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid transparent;
+            cursor: pointer;
+        }
+        
+        .game-btn.active {
+            background: var(--dark-light);
+            color: var(--text);
+            border-color: #475569;
+        }
+        
+        .listings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .trade-card {
+            background: var(--dark-light);
+            border-radius: 12px;
+            border: 1px solid #334155;
+            padding: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .trade-card:hover {
+            transform: translateY(-5px);
+            border-color: #475569;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .game-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        
+        .trade-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            overflow: hidden;
+        }
+        
+        .user-info h3 {
+            font-size: 1rem;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .verified-badge {
+            color: #10b981;
+            font-size: 0.8rem;
+        }
+        
+        .user-info p {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+        
+        .trade-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .trade-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #374151;
+            position: relative;
+        }
+        
+        .trade-label {
+            position: absolute;
+            top: -8px;
+            left: 10px;
+            background: var(--dark-light);
+            padding: 0 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #94a3b8;
+        }
+        
+        .offer-text {
+            color: #60a5fa;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+        
+        .request-text {
+            color: #34d399;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+        
+        .trade-divider {
+            display: flex;
+            justify-content: center;
+            margin: 5px 0;
+        }
+        
+        .divider-icon {
+            background: #374151;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+        
+        .trade-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 8px 0;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .action-secondary {
+            width: 40px;
+            flex: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .proof-section {
+            margin: 10px 0;
+        }
+        
+        .proof-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        
+        .proof-image {
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .proof-image img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .modal {
+            background: var(--dark-light);
+            border-radius: 15px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-step {
+            display: none;
+        }
+        
+        .modal-step.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--dark-light);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: var(--text);
+            outline: none;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--primary);
+        }
+        
+        .info-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .code-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px dashed rgba(16, 185, 129, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .code-text {
+            font-family: monospace;
+            font-weight: 700;
+            color: #10b981;
+            font-size: 1.1rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            border: 2px dashed #334155;
+            border-radius: 15px;
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            color: #475569;
+            margin-bottom: 15px;
+        }
+        
+        /* Real-time updates */
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .live-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            margin-left: 8px;
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <span>RobloxTradeHub<span style="color: #3b82f6;">.io</span></span>
+                </div>
+                
+                <div class="user-section">
+                    <button class="btn btn-secondary" id="verifyBtn">
+                        <i class="fas fa-shield-alt"></i> Link Roblox
+                    </button>
+                    <button class="btn btn-primary" id="createBtn">
+                        <i class="fas fa-plus-circle"></i> Post Trade
+                    </button>
+                    <div class="user-profile" id="userProfile" style="display: none;">
+                        <div class="avatar" id="userAvatar">U</div>
+                        <div>
+                            <div id="userDisplayName" style="font-weight: 600;">User</div>
+                            <div style="font-size: 0.8rem; color: #94a3b8;">Level <span id="userLevel">1</span> Trader</div>
+                        </div>
+                        <button class="btn btn-secondary" id="logoutBtn" style="padding: 5px; border-radius: 50%;">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="ticker">
+        <div class="container">
+            <div class="ticker-content">
+                <div class="ticker-item"><i class="fas fa-fire" style="color: #10b981;"></i> Kitsune trading at 15M+</div>
+                <div class="ticker-item"><i class="fas fa-fire" style="color: #10b981;"></i> Shadow Dragon demand rising</div>
+                <div class="ticker-item"><i class="fas fa-fire" style="color: #10b981;"></i> New MM2 update released</div>
+                <div class="ticker-item"><i class="fas fa-fire" style="color: #10b981;"></i> PS99 Titanic value stable</div>
+                <div class="ticker-item"><i class="fas fa-fire" style="color: #10b981;"></i> TTD Hyperion trading hot</div>
+            </div>
+        </div>
+    </div>
+    
+    <main>
+        <div class="container">
+            <div class="game-filter" id="gameFilter">
+                <!-- Game buttons will be populated dynamically -->
+            </div>
+            
+            <div class="verification-banner" id="verificationBanner">
+                <div class="verification-content">
+                    <div class="verification-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div>
+                        <h3>Verify your Roblox Account</h3>
+                        <p>Unlock full access to the marketplace, post trades, and build your reputation score.</p>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="bannerVerifyBtn">
+                    Start Verification
+                </button>
+            </div>
+            
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-bolt" style="color: #f59e0b;"></i> Live Trading Feed
+                    <span class="live-indicator" title="Live updates active"></span>
+                </h2>
+                <span style="font-size: 0.9rem; color: #94a3b8;" id="listingCounter">Loading...</span>
+            </div>
+            
+            <div class="listings-grid" id="listingsGrid">
+                <!-- Trade listings will be populated dynamically -->
+            </div>
+            
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3>No listings found</h3>
+                <p>Be the first to list an item in this category and get featured.</p>
+                <button class="btn btn-primary" id="emptyStateBtn" style="margin-top: 15px;">Post First Trade</button>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Verification Modal -->
+    <div class="modal-overlay" id="verificationModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-shield-alt" style="color: #10b981;"></i>
+                    Link Roblox Account
+                </h3>
+                <button class="close-btn" id="closeVerifyModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-step active" id="step1">
+                    <div class="info-box">
+                        <i class="fas fa-info-circle" style="color: #3b82f6;"></i>
+                        <p>Enter your Roblox username to start the verification process.</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Roblox Username</label>
+                        <input type="text" id="robloxUsername" placeholder="e.g. BuilderMan">
+                    </div>
+                    
+                    <button class="btn btn-primary" id="findAccountBtn">
+                        Find Account
+                    </button>
+                </div>
+                
+                <div class="modal-step" id="step2">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div class="user-avatar" style="width: 80px; height: 80px; margin: 0 auto 10px;" id="profileAvatar">
+                            <i class="fas fa-user" style="font-size: 2rem;"></i>
+                        </div>
+                        <h3 id="profileUsername">Username</h3>
+                        <p style="color: #94a3b8;">Customize how you appear on RobloxTradeHub</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Display Name</label>
+                        <input type="text" id="displayName" placeholder="Your display name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Verification Code:</label>
+                        <div class="code-box">
+                            <code class="code-text" id="verificationCode">ROBLOX-0000</code>
+                            <button class="btn btn-secondary" id="copyCodeBtn">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px;">
+                            Paste this code into your Roblox profile bio to verify ownership
+                        </p>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="verifyAccountBtn">
+                        Verify Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Create Listing Modal -->
+    <div class="modal-overlay" id="createModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Trade</h3>
+                <button class="close-btn" id="closeCreateModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="createForm">
+                    <div class="form-group">
+                        <label class="form-label">Select Game</label>
+                        <select id="gameSelect">
+                            <!-- Options populated dynamically -->
+                        </select>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label class="form-label">You Offer</label>
+                            <textarea id="offerItems" placeholder="e.g., Dragon Fruit, 2,000,000 Beli" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">You Want</label>
+                            <textarea id="requestItems" placeholder="e.g., Kitsune Fruit" rows="3"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Proof Image URL</label>
+                        <input type="url" id="proofUrl" placeholder="https://example.com/proof.jpg">
+                        <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px;">
+                            Link to a screenshot showing you own the items
+                        </p>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        Post Trade Offer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Real Roblox Trading Platform Implementation
+        class RobloxTradePlatform {
+            constructor() {
+                this.currentUser = null;
+                this.verifiedUser = null;
+                this.listings = [];
+                this.gameData = {};
+                this.currentGameFilter = 'all';
+                this.gameOptions = [];
+                
+                this.init();
+            }
+            
+            async init() {
+                await this.loadGameData();
+                await this.loadUserData();
+                await this.loadListings();
+                this.setupEventListeners();
+                this.renderGameFilter();
+                this.renderListings();
+                this.updateUI();
+                
+                // Simulate real-time updates
+                setInterval(() => {
+                    this.updateLiveFeed();
+                }, 5000);
+            }
+            
+            async loadGameData() {
+                // Simulated API call for game data
+                this.gameData = {
+                    all: { name: 'All Games', icon: 'fa-gamepad', color: '#94a3b8', bg: '#475569' },
+                    bloxfruits: { name: 'Blox Fruits', icon: 'fa-dragon', color: '#60a5fa', bg: '#1e3a8a', popularItems: ['Kitsune', 'Dragon', 'Leopard', 'Mammoth'] },
+                    adoptme: { name: 'Adopt Me', icon: 'fa-paw', color: '#f472b6', bg: '#9d174d', popularItems: ['Shadow Dragon', 'Frost Dragon', 'Giraffe', 'Owl'] },
+                    mm2: { name: 'Murder Mystery 2', icon: 'fa-user-secret', color: '#ef4444', bg: '#991b1b', popularItems: ['Corrupt', 'Eternal', 'Eternal II', 'Batwing'] },
+                    ps99: { name: 'Pet Sim 99', icon: 'fa-cat', color: '#f59e0b', bg: '#92400e', popularItems: ['Titanic', 'Huge', 'Exclusive', 'Rainbow'] },
+                    ttd: { name: 'Toilet Tower Defense', icon: 'fa-toilet', color: '#10b981', bg: '#047857', popularItems: ['Hyperion', 'Zeus', 'Apollo', 'Valkyrie'] }
+                };
+                
+                this.gameOptions = Object.entries(this.gameData).filter(([key]) => key !== 'all');
+            }
+            
+            async loadUserData() {
+                // Check if user exists in localStorage
+                const savedUser = localStorage.getItem('robloxtrade_user');
+                if (savedUser) {
+                    this.verifiedUser = JSON.parse(savedUser);
+                    this.currentUser = { id: this.verifiedUser.id, username: 'current' };
+                }
+            }
+            
+            async loadListings() {
+                // Simulated API call for trade listings
+                // In a real app, this would fetch from a backend
+                const savedListings = localStorage.getItem('robloxtrade_listings');
+                
+                if (savedListings) {
+                    this.listings = JSON.parse(savedListings);
+                } else {
+                    // Generate realistic sample data
+                    this.listings = this.generateSampleListings();
+                    localStorage.setItem('robloxtrade_listings', JSON.stringify(this.listings));
+                }
+            }
+            
+            generateSampleListings() {
+                const games = ['bloxfruits', 'adoptme', 'mm2', 'ps99', 'ttd'];
+                const sampleUsers = [
+                    { id: 'user1', name: 'TradeMaster', username: 'TradeMaster123', verified: true, pfp: 'https://i.pravatar.cc/150?img=1' },
+                    { id: 'user2', name: 'PetCollector', username: 'PetHunter', verified: true, pfp: 'https://i.pravatar.cc/150?img=2' },
+                    { id: 'user3', name: 'KnifeTrader', username: 'MM2Expert', verified: false, pfp: 'https://i.pravatar.cc/150?img=3' },
+                    { id: 'user4', name: 'HugePetOwner', username: 'PS99Trader', verified: true, pfp: 'https://i.pravatar.cc/150?img=4' },
+                    { id: 'user5', name: 'ToiletDefender', username: 'TTDPlayer', verified: true, pfp: 'https://i.pravatar.cc/150?img=5' }
+                ];
+                
+                const listings = [];
+                
+                for (let i = 0; i < 12; i++) {
+                    const gameKey = games[Math.floor(Math.random() * games.length)];
+                    const user = sampleUsers[Math.floor(Math.random() * sampleUsers.length)];
+                    const game = this.gameData[gameKey];
+                    
+                    const offerItems = [];
+                    const requestItems = [];
+                    
+                    // Generate realistic offers and requests based on game
+                    for (let j = 0; j < Math.floor(Math.random() * 2) + 1; j++) {
+                        offerItems.push(game.popularItems[Math.floor(Math.random() * game.popularItems.length)]);
+                        requestItems.push(game.popularItems[Math.floor(Math.random() * game.popularItems.length)]);
+                    }
+                    
+                    // Add currency/values for some games
+                    if (gameKey === 'bloxfruits' && Math.random() > 0.5) {
+                        offerItems.push(`${Math.floor(Math.random() * 5) + 1},000,000 Beli`);
+                    }
+                    
+                    if (gameKey === 'ps99' && Math.random() > 0.5) {
+                        offerItems.push(`${Math.floor(Math.random() * 50) + 10}B Gems`);
+                    }
+                    
+                    listings.push({
+                        id: `listing_${i}`,
+                        makerId: user.id,
+                        makerName: user.name,
+                        makerUsername: user.username,
+                        makerPfp: user.pfp,
+                        makerVerified: user.verified,
+                        game: gameKey,
+                        offer: offerItems.join(' + '),
+                        request: requestItems.join(' + '),
+                        proofUrl: `https://picsum.photos/400/200?random=${i}`,
+                        createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(), // Up to 7 days ago
+                        views: Math.floor(Math.random() * 100),
+                        likes: Math.floor(Math.random() * 20),
+                        status: 'open'
+                    });
+                }
+                
+                return listings;
+            }
+            
+            setupEventListeners() {
+                // Modal controls
+                document.getElementById('verifyBtn').addEventListener('click', () => this.openVerificationModal());
+                document.getElementById('bannerVerifyBtn').addEventListener('click', () => this.openVerificationModal());
+                document.getElementById('createBtn').addEventListener('click', () => {
+                    if (this.verifiedUser) {
+                        this.openCreateModal();
+                    } else {
+                        this.openVerificationModal();
+                    }
+                });
+                document.getElementById('emptyStateBtn').addEventListener('click', () => {
+                    if (this.verifiedUser) {
+                        this.openCreateModal();
+                    } else {
+                        this.openVerificationModal();
+                    }
+                });
+                
+                document.getElementById('closeVerifyModal').addEventListener('click', () => this.closeVerificationModal());
+                document.getElementById('closeCreateModal').addEventListener('click', () => this.closeCreateModal());
+                document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
+                
+                // Verification steps
+                document.getElementById('findAccountBtn').addEventListener('click', () => this.findRobloxAccount());
+                document.getElementById('copyCodeBtn').addEventListener('click', () => this.copyVerificationCode());
+                document.getElementById('verifyAccountBtn').addEventListener('click', () => this.verifyAccount());
+                
+                // Create listing form
+                document.getElementById('createForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.createListing();
+                });
+                
+                // Modal backdrop clicks
+                document.getElementById('verificationModal').addEventListener('click', (e) => {
+                    if (e.target === document.getElementById('verificationModal')) {
+                        this.closeVerificationModal();
+                    }
+                });
+                document.getElementById('createModal').addEventListener('click', (e) => {
+                    if (e.target === document.getElementById('createModal')) {
+                        this.closeCreateModal();
+                    }
+                });
+            }
+            
+            renderGameFilter() {
+                const filterContainer = document.getElementById('gameFilter');
+                filterContainer.innerHTML = '';
+                
+                Object.entries(this.gameData).forEach(([key, game]) => {
+                    const button = document.createElement('button');
+                    button.className = `game-btn ${key === this.currentGameFilter ? 'active' : ''}`;
+                    button.dataset.game = key;
+                    button.innerHTML = `<i class="fas ${game.icon}"></i> ${game.name}`;
+                    
+                    button.addEventListener('click', () => {
+                        document.querySelectorAll('.game-btn').forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                        this.currentGameFilter = key;
+                        this.renderListings();
+                    });
+                    
+                    filterContainer.appendChild(button);
+                });
+            }
+            
+            renderListings() {
+                const grid = document.getElementById('listingsGrid');
+                const emptyState = document.getElementById('emptyState');
+                const listingCounter = document.getElementById('listingCounter');
+                
+                // Filter listings
+                let filteredListings = this.listings;
+                if (this.currentGameFilter !== 'all') {
+                    filteredListings = this.listings.filter(l => l.game === this.currentGameFilter);
+                }
+                
+                listingCounter.textContent = `Showing ${filteredListings.length} trades`;
+                
+                if (filteredListings.length === 0) {
+                    grid.style.display = 'none';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+                
+                grid.style.display = 'grid';
+                emptyState.style.display = 'none';
+                grid.innerHTML = '';
+                
+                filteredListings.forEach(listing => {
+                    const card = this.createListingCard(listing);
+                    grid.appendChild(card);
+                });
+            }
+            
+            createListingCard(listing) {
+                const game = this.gameData[listing.game];
+                const timeAgo = this.getTimeAgo(listing.createdAt);
+                
+                const card = document.createElement('div');
+                card.className = 'trade-card';
+                card.innerHTML = `
+                    <div class="game-badge" style="background: ${game.bg}; color: ${game.color}">
+                        ${game.name}
+                    </div>
+                    
+                    <div class="trade-user">
+                        <div class="user-avatar">
+                            ${listing.makerPfp ? 
+                                `<img src="${listing.makerPfp}" alt="${listing.makerName}">` : 
+                                listing.makerName.charAt(0)
+                            }
+                        </div>
+                        <div class="user-info">
+                            <h3>
+                                ${listing.makerName}
+                                ${listing.makerVerified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+                            </h3>
+                            <p>@${listing.makerUsername} • ${timeAgo}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="trade-info">
+                        <div class="trade-section">
+                            <span class="trade-label">OFFERING</span>
+                            <div class="offer-text">${listing.offer}</div>
+                        </div>
+                        
+                        <div class="trade-divider">
+                            <div class="divider-icon">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="trade-section">
+                            <span class="trade-label">WANTING</span>
+                            <div class="request-text">${listing.request}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="proof-section">
+                        <button class="proof-btn">
+                            <i class="fas fa-image"></i> View Proof
+                        </button>
+                        <div class="proof-image">
+                            <img src="${listing.proofUrl}" alt="Proof of items">
+                        </div>
+                    </div>
+                    
+                    <div class="trade-actions">
+                        <button class="action-btn btn-primary">Offer Trade</button>
+                        <button class="action-btn action-secondary btn-secondary">
+                            <i class="fas fa-comment"></i>
+                        </button>
+                    </div>
+                `;
+                
+                // Add proof image toggle
+                const proofBtn = card.querySelector('.proof-btn');
+                const proofImage = card.querySelector('.proof-image');
+                
+                proofBtn.addEventListener('click', () => {
+                    if (proofImage.style.display === 'block') {
+                        proofImage.style.display = 'none';
+                        proofBtn.innerHTML = '<i class="fas fa-image"></i> View Proof';
+                    } else {
+                        proofImage.style.display = 'block';
+                        proofBtn.innerHTML = '<i class="fas fa-image"></i> Hide Proof';
+                    }
+                });
+                
+                return card;
+            }
+            
+            getTimeAgo(dateString) {
+                const date = new Date(dateString);
+                const now = new Date();
+                const diffMs = now - date;
+                const diffMins = Math.round(diffMs / (1000 * 60));
+                const diffHours = Math.round(diffMs / (1000 * 60 * 60));
+                const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+                
+                if (diffMins < 60) return `${diffMins}m ago`;
+                if (diffHours < 24) return `${diffHours}h ago`;
+                if (diffDays < 7) return `${diffDays}d ago`;
+                return date.toLocaleDateString();
+            }
+            
+            updateUI() {
+                const verificationBanner = document.getElementById('verificationBanner');
+                const userProfile = document.getElementById('userProfile');
+                const verifyBtn = document.getElementById('verifyBtn');
+                const createBtn = document.getElementById('createBtn');
+                
+                if (this.verifiedUser) {
+                    verificationBanner.style.display = 'none';
+                    userProfile.style.display = 'flex';
+                    verifyBtn.style.display = 'none';
+                    
+                    document.getElementById('userDisplayName').textContent = this.verifiedUser.displayName;
+                    document.getElementById('userLevel').textContent = this.verifiedUser.level || 1;
+                    
+                    const avatar = document.getElementById('userAvatar');
+                    avatar.textContent = this.verifiedUser.displayName.charAt(0);
+                    if (this.verifiedUser.pfpUrl) {
+                        avatar.innerHTML = `<img src="${this.verifiedUser.pfpUrl}" alt="${this.verifiedUser.displayName}">`;
+                    }
+                    
+                    createBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Post Trade';
+                } else {
+                    verificationBanner.style.display = 'flex';
+                    userProfile.style.display = 'none';
+                    verifyBtn.style.display = 'flex';
+                    createBtn.innerHTML = '<i class="fas fa-shield-alt"></i> Verify to Post';
+                }
+                
+                // Update create modal game options
+                const gameSelect = document.getElementById('gameSelect');
+                gameSelect.innerHTML = '';
+                
+                this.gameOptions.forEach(([key, game]) => {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = game.name;
+                    gameSelect.appendChild(option);
+                });
+            }
+            
+            openVerificationModal() {
+                document.getElementById('verificationModal').style.display = 'flex';
+                this.showVerificationStep(1);
+                
+                // Generate a new verification code
+                const code = `ROBLOX-${Math.floor(1000 + Math.random() * 9000)}`;
+                document.getElementById('verificationCode').textContent = code;
+            }
+            
+            closeVerificationModal() {
+                document.getElementById('verificationModal').style.display = 'none';
+            }
+            
+            openCreateModal() {
+                document.getElementById('createModal').style.display = 'flex';
+            }
+            
+            closeCreateModal() {
+                document.getElementById('createModal').style.display = 'none';
+            }
+            
+            showVerificationStep(step) {
+                document.querySelectorAll('.modal-step').forEach(el => el.classList.remove('active'));
+                document.getElementById(`step${step}`).classList.add('active');
+            }
+            
+            findRobloxAccount() {
+                const username = document.getElementById('robloxUsername').value.trim();
+                
+                if (!username) {
+                    alert('Please enter a Roblox username');
+                    return;
+                }
+                
+                // Simulate API call
+                const findBtn = document.getElementById('findAccountBtn');
+                findBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
+                findBtn.disabled = true;
+                
+                setTimeout(() => {
+                    // Mock successful response
+                    document.getElementById('profileUsername').textContent = username;
+                    document.getElementById('displayName').value = username;
+                    
+                    // Set avatar preview
+                    const avatar = document.getElementById('profileAvatar');
+                    avatar.innerHTML = `<img src="https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&size=80&background=random" alt="${username}" style="width: 100%; height: 100%; border-radius: 50%;">`;
+                    
+                    this.showVerificationStep(2);
+                    
+                    findBtn.innerHTML = 'Find Account';
+                    findBtn.disabled = false;
+                }, 1500);
+            }
+            
+            copyVerificationCode() {
+                const code = document.getElementById('verificationCode').textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    const btn = document.getElementById('copyCodeBtn');
+                    const originalHtml = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check"></i>';
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = originalHtml;
+                    }, 2000);
+                });
+            }
+            
+            verifyAccount() {
+                const verifyBtn = document.getElementById('verifyAccountBtn');
+                verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+                verifyBtn.disabled = true;
+                
+                setTimeout(() => {
+                    const username = document.getElementById('robloxUsername').value;
+                    const displayName = document.getElementById('displayName').value || username;
+                    
+                    this.verifiedUser = {
+                        id: `user_${Date.now()}`,
+                        robloxUsername: username,
+                        displayName: displayName,
+                        pfpUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`,
+                        isVerified: true,
+                        verificationCode: document.getElementById('verificationCode').textContent,
+                        verifiedAt: new Date().toISOString(),
+                        reputation: 0,
+                        tradesCompleted: 0,
+                        level: 1
+                    };
+                    
+                    // Save to localStorage
+                    localStorage.setItem('robloxtrade_user', JSON.stringify(this.verifiedUser));
+                    
+                    this.updateUI();
+                    this.closeVerificationModal();
+                    
+                    verifyBtn.innerHTML = 'Verify Profile';
+                    verifyBtn.disabled = false;
+                    
+                    // Clear form
+                    document.getElementById('robloxUsername').value = '';
+                    document.getElementById('displayName').value = '';
+                }, 2000);
+            }
+            
+            createListing() {
+                const game = document.getElementById('gameSelect').value;
+                const offer = document.getElementById('offerItems').value;
+                const request = document.getElementById('requestItems').value;
+                const proofUrl = document.getElementById('proofUrl').value;
+                
+                if (!offer || !request || !proofUrl) {
+                    alert('Please fill all required fields');
+                    return;
+                }
+                
+                const gameData = this.gameData[game];
+                
+                const listing = {
+                    id: `listing_${Date.now()}`,
+                    makerId: this.verifiedUser.id,
+                    makerName: this.verifiedUser.displayName,
+                    makerUsername: this.verifiedUser.robloxUsername,
+                    makerPfp: this.verifiedUser.pfpUrl,
+                    makerVerified: true,
+                    game: game,
+                    offer: offer,
+                    request: request,
+                    proofUrl: proofUrl,
+                    createdAt: new Date().toISOString(),
+                    views: 0,
+                    likes: 0,
+                    status: 'open'
+                };
+                
+                // Add to listings
+                this.listings.unshift(listing);
+                localStorage.setItem('robloxtrade_listings', JSON.stringify(this.listings));
+                
+                this.renderListings();
+                this.closeCreateModal();
+                
+                // Reset form
+                document.getElementById('createForm').reset();
+                
+                // Update user stats
+                this.verifiedUser.tradesCompleted += 1;
+                if (this.verifiedUser.tradesCompleted >= 5) {
+                    this.verifiedUser.level = 2;
+                }
+                if (this.verifiedUser.tradesCompleted >= 15) {
+                    this.verifiedUser.level = 3;
+                }
+                
+                localStorage.setItem('robloxtrade_user', JSON.stringify(this.verifiedUser));
+                this.updateUI();
+            }
+            
+            logout() {
+                localStorage.removeItem('robloxtrade_user');
+                this.verifiedUser = null;
+                this.updateUI();
+            }
+            
+            updateLiveFeed() {
+                // Simulate live updates - randomly add or update listings
+                if (Math.random() > 0.7 && this.listings.length > 0) {
+                    // Randomly update a listing's views/likes
+                    const randomIndex = Math.floor(Math.random() * this.listings.length);
+                    this.listings[randomIndex].views += Math.floor(Math.random() * 5);
+                    this.listings[randomIndex].likes += Math.floor(Math.random() * 2);
+                    
+                    localStorage.setItem('robloxtrade_listings', JSON.stringify(this.listings));
+                    
+                    // Only re-render if we're viewing the right category
+                    if (this.currentGameFilter === 'all' || 
+                        this.listings[randomIndex].game === this.currentGameFilter) {
+                        this.renderListings();
+                    }
+                }
+            }
+        }
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            window.tradingApp = new RobloxTradePlatform();
+        });
+    </script>
+</body>
+</html>
