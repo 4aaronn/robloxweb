@@ -6,7 +6,6 @@
     <title>RobloxTradeHub - Live Trading Platform</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* All the CSS from previous implementation remains the same */
         :root {
             --primary: #3b82f6;
             --primary-dark: #1d4ed8;
@@ -557,9 +556,38 @@
             50% { opacity: 0.5; }
             100% { opacity: 1; }
         }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            background: var(--dark-light);
+            border-left: 4px solid var(--success);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            display: none;
+        }
+        
+        .notification.error {
+            border-left-color: var(--danger);
+        }
+        
+        .notification.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
     </style>
 </head>
 <body>
+    <div id="notification" class="notification"></div>
+
     <header>
         <div class="container">
             <div class="header-content">
@@ -762,20 +790,11 @@
     </div>
 
     <script>
-        // Complete Roblox Trading Platform with Real API Integration
+        // Working Roblox Trading Platform with Fallbacks
         class RobloxTradePlatform {
             constructor() {
-                // Database Name: robloxtradehub_db
-                this.API_BASE = 'https://api.robloxtradehub.com/v1';
-                this.ROBLOX_API_BASE = 'https://users.roblox.com/v1';
-                
-                // Database Schema:
-                // - users: user authentication and profiles
-                // - listings: trade listings
-                // - games: supported Roblox games
-                // - messages: user communications
-                // - trades: completed trade records
-                
+                // Use localStorage as database since backend isn't available
+                this.databaseName = 'robloxtradehub_db';
                 this.currentUser = null;
                 this.verifiedUser = null;
                 this.listings = [];
@@ -785,261 +804,189 @@
                 this.init();
             }
             
-            async init() {
-                await this.loadGameData();
-                await this.checkAuthentication();
+            init() {
+                this.initializeDatabase();
+                this.loadGameData();
+                this.checkAuthentication();
                 this.setupEventListeners();
                 this.renderGameFilter();
                 this.updateUI();
                 this.loadListings();
             }
             
-            // Real Roblox API Integration
-            async getRobloxUserProfile(username) {
-                try {
-                    // Search for user by username
-                    const searchResponse = await fetch(
-                        `${this.ROBLOX_API_BASE}/users/search?keyword=${encodeURIComponent(username)}`
-                    );
+            initializeDatabase() {
+                // Initialize localStorage as our database
+                if (!localStorage.getItem(this.databaseName + '_initialized')) {
+                    // Create sample data
+                    const sampleListings = this.generateSampleListings();
+                    const sampleUsers = this.generateSampleUsers();
                     
-                    if (!searchResponse.ok) {
-                        throw new Error('Failed to search Roblox users');
+                    localStorage.setItem(this.databaseName + '_listings', JSON.stringify(sampleListings));
+                    localStorage.setItem(this.databaseName + '_users', JSON.stringify(sampleUsers));
+                    localStorage.setItem(this.databaseName + '_initialized', 'true');
+                }
+            }
+            
+            generateSampleListings() {
+                return [
+                    {
+                        id: '1',
+                        makerId: 'user1',
+                        makerName: 'TradeMaster',
+                        makerUsername: 'TradeMaster123',
+                        makerPfp: 'https://i.pravatar.cc/150?img=1',
+                        makerVerified: true,
+                        game: 'bloxfruits',
+                        offer: 'Dragon Fruit + 2,000,000 Beli',
+                        request: 'Kitsune Fruit',
+                        proofUrl: 'https://picsum.photos/400/200?random=1',
+                        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+                        views: 24,
+                        likes: 5,
+                        status: 'open'
+                    },
+                    {
+                        id: '2',
+                        makerId: 'user2',
+                        makerName: 'PetCollector',
+                        makerUsername: 'PetHunter',
+                        makerPfp: 'https://i.pravatar.cc/150?img=2',
+                        makerVerified: true,
+                        game: 'adoptme',
+                        offer: 'Frost Dragon + Ride Potion',
+                        request: 'Shadow Dragon',
+                        proofUrl: 'https://picsum.photos/400/200?random=2',
+                        createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+                        views: 42,
+                        likes: 12,
+                        status: 'open'
+                    },
+                    {
+                        id: '3',
+                        makerId: 'user3',
+                        makerName: 'KnifeTrader',
+                        makerUsername: 'MM2Expert',
+                        makerPfp: 'https://i.pravatar.cc/150?img=3',
+                        makerVerified: false,
+                        game: 'mm2',
+                        offer: 'Eternal II + Vintage Gun',
+                        request: 'Corrupt Knife',
+                        proofUrl: 'https://picsum.photos/400/200?random=3',
+                        createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+                        views: 18,
+                        likes: 3,
+                        status: 'open'
                     }
-                    
-                    const searchData = await searchResponse.json();
-                    
-                    if (!searchData.data || searchData.data.length === 0) {
-                        throw new Error('Roblox user not found');
-                    }
-                    
-                    const user = searchData.data[0];
-                    
-                    // Get detailed user information
-                    const userResponse = await fetch(
-                        `${this.ROBLOX_API_BASE}/users/${user.id}`
-                    );
-                    
-                    if (!userResponse.ok) {
-                        throw new Error('Failed to get user details');
-                    }
-                    
-                    const userDetails = await userResponse.json();
-                    
-                    // Get user avatar
-                    const avatarResponse = await fetch(
-                        `${this.ROBLOX_API_BASE}/users/${user.id}/avatar`
-                    );
-                    
-                    let avatarUrl = `https://via.placeholder.com/150/007bff/ffffff?text=${user.name.charAt(0)}`;
-                    
-                    if (avatarResponse.ok) {
-                        const avatarData = await avatarResponse.json();
-                        if (avatarData.thumbnailUrl) {
-                            avatarUrl = avatarData.thumbnailUrl;
-                        }
-                    }
-                    
-                    return {
-                        id: user.id,
-                        username: user.name,
-                        displayName: user.displayName || user.name,
-                        avatarUrl: avatarUrl,
+                ];
+            }
+            
+            generateSampleUsers() {
+                return [
+                    {
+                        id: 'user1',
+                        username: 'TradeMaster123',
+                        displayName: 'TradeMaster',
+                        pfpUrl: 'https://i.pravatar.cc/150?img=1',
                         isVerified: true,
-                        createdAt: userDetails.created
-                    };
-                    
-                } catch (error) {
-                    console.error('Roblox API Error:', error);
-                    throw new Error(`Failed to fetch Roblox user: ${error.message}`);
+                        level: 2,
+                        tradesCompleted: 15
+                    }
+                ];
+            }
+            
+            loadGameData() {
+                this.gameData = {
+                    all: { id: 'all', name: 'All Games', icon: 'fa-gamepad' },
+                    bloxfruits: { 
+                        id: 'bloxfruits', 
+                        name: 'Blox Fruits', 
+                        icon: 'fa-dragon', 
+                        color: '#60a5fa', 
+                        bg: '#1e3a8a' 
+                    },
+                    adoptme: { 
+                        id: 'adoptme', 
+                        name: 'Adopt Me', 
+                        icon: 'fa-paw', 
+                        color: '#f472b6', 
+                        bg: '#9d174d' 
+                    },
+                    mm2: { 
+                        id: 'mm2', 
+                        name: 'Murder Mystery 2', 
+                        icon: 'fa-user-secret', 
+                        color: '#ef4444', 
+                        bg: '#991b1b' 
+                    },
+                    ps99: { 
+                        id: 'ps99', 
+                        name: 'Pet Sim 99', 
+                        icon: 'fa-cat', 
+                        color: '#f59e0b', 
+                        bg: '#92400e' 
+                    },
+                    ttd: { 
+                        id: 'ttd', 
+                        name: 'Toilet Tower Defense', 
+                        icon: 'fa-toilet', 
+                        color: '#10b981', 
+                        bg: '#047857' 
+                    }
+                };
+            }
+            
+            checkAuthentication() {
+                const userData = localStorage.getItem(this.databaseName + '_currentUser');
+                if (userData) {
+                    this.verifiedUser = JSON.parse(userData);
+                    this.currentUser = { id: this.verifiedUser.id };
                 }
             }
             
+            loadListings() {
+                try {
+                    const listingsData = localStorage.getItem(this.databaseName + '_listings');
+                    if (listingsData) {
+                        this.listings = JSON.parse(listingsData);
+                        this.renderListings();
+                    }
+                } catch (error) {
+                    console.error('Error loading listings:', error);
+                    this.showErrorState('Failed to load listings');
+                }
+            }
+            
+            // Simulated Roblox API call with fallback
+            async getRobloxUserProfile(username) {
+                // In a real app, this would call Roblox API
+                // For demo purposes, we'll simulate the API call
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        // Simulate API response
+                        resolve({
+                            id: Math.random().toString(36).substr(2, 9),
+                            username: username,
+                            displayName: username,
+                            avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&size=150&background=random`,
+                            isVerified: false
+                        });
+                    }, 1000);
+                });
+            }
+            
+            // Simulated verification with fallback
             async verifyRobloxProfile(userId, verificationCode) {
-                try {
-                    // Get user profile to check verification code in bio/description
-                    const profileResponse = await fetch(
-                        `${this.ROBLOX_API_BASE}/users/${userId}`
-                    );
-                    
-                    if (!profileResponse.ok) {
-                        throw new Error('Failed to fetch user profile');
-                    }
-                    
-                    const profileData = await profileResponse.json();
-                    const userDescription = profileData.description || '';
-                    
-                    // Check if verification code exists in profile
-                    if (!userDescription.includes(verificationCode)) {
-                        throw new Error('Verification code not found in Roblox profile');
-                    }
-                    
-                    return {
-                        success: true,
-                        message: 'Account verified successfully!'
-                    };
-                    
-                } catch (error) {
-                    console.error('Verification Error:', error);
-                    throw new Error(`Verification failed: ${error.message}`);
-                }
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        // For demo, always return success
+                        resolve({
+                            success: true,
+                            message: 'Account verified successfully!'
+                        });
+                    }, 1500);
+                });
             }
             
-            // Backend API Integration
-            async apiCall(endpoint, options = {}) {
-                try {
-                    const url = `${this.API_BASE}${endpoint}`;
-                    const config = {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            ...options.headers
-                        },
-                        ...options
-                    };
-                    
-                    const token = localStorage.getItem('robloxhub_token');
-                    if (token) {
-                        config.headers.Authorization = `Bearer ${token}`;
-                    }
-                    
-                    const response = await fetch(url, config);
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-                    
-                    return await response.json();
-                } catch (error) {
-                    console.error('API Call failed:', error);
-                    this.showNotification('Connection error. Please try again.', 'error');
-                    throw error;
-                }
-            }
-            
-            async loadGameData() {
-                try {
-                    const data = await this.apiCall('/games');
-                    this.gameData = data.games.reduce((acc, game) => {
-                        acc[game.id] = game;
-                        return acc;
-                    }, {});
-                    this.gameData.all = { id: 'all', name: 'All Games', icon: 'fa-gamepad' };
-                } catch (error) {
-                    // Fallback data
-                    this.gameData = {
-                        all: { id: 'all', name: 'All Games', icon: 'fa-gamepad' },
-                        bloxfruits: { 
-                            id: 'bloxfruits', 
-                            name: 'Blox Fruits', 
-                            icon: 'fa-dragon', 
-                            color: '#60a5fa', 
-                            bg: '#1e3a8a' 
-                        },
-                        adoptme: { 
-                            id: 'adoptme', 
-                            name: 'Adopt Me', 
-                            icon: 'fa-paw', 
-                            color: '#f472b6', 
-                            bg: '#9d174d' 
-                        },
-                        mm2: { 
-                            id: 'mm2', 
-                            name: 'Murder Mystery 2', 
-                            icon: 'fa-user-secret', 
-                            color: '#ef4444', 
-                            bg: '#991b1b' 
-                        },
-                        ps99: { 
-                            id: 'ps99', 
-                            name: 'Pet Sim 99', 
-                            icon: 'fa-cat', 
-                            color: '#f59e0b', 
-                            bg: '#92400e' 
-                        },
-                        ttd: { 
-                            id: 'ttd', 
-                            name: 'Toilet Tower Defense', 
-                            icon: 'fa-toilet', 
-                            color: '#10b981', 
-                            bg: '#047857' 
-                        }
-                    };
-                }
-            }
-            
-            async checkAuthentication() {
-                const token = localStorage.getItem('robloxhub_token');
-                if (token) {
-                    try {
-                        const userData = await this.apiCall('/auth/me');
-                        this.verifiedUser = userData;
-                        this.currentUser = { id: userData.id };
-                    } catch (error) {
-                        localStorage.removeItem('robloxhub_token');
-                    }
-                }
-            }
-            
-            async loadListings() {
-                try {
-                    const data = await this.apiCall('/listings');
-                    this.listings = data.listings;
-                    this.renderListings();
-                } catch (error) {
-                    this.showErrorState('Failed to load listings. Please try again.');
-                }
-            }
-            
-            async verifyAccount(username, displayName, verificationCode) {
-                try {
-                    // Step 1: Get Roblox user profile
-                    const robloxUser = await this.getRobloxUserProfile(username);
-                    
-                    // Step 2: Verify code in Roblox profile
-                    await this.verifyRobloxProfile(robloxUser.id, verificationCode);
-                    
-                    // Step 3: Register with our backend
-                    const result = await this.apiCall('/auth/verify', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            robloxUserId: robloxUser.id,
-                            username: robloxUser.username,
-                            displayName: displayName || robloxUser.displayName,
-                            avatarUrl: robloxUser.avatarUrl,
-                            verificationCode: verificationCode
-                        })
-                    });
-                    
-                    localStorage.setItem('robloxhub_token', result.token);
-                    this.verifiedUser = result.user;
-                    this.currentUser = { id: result.user.id };
-                    
-                    this.showNotification('Account verified successfully!', 'success');
-                    return result;
-                    
-                } catch (error) {
-                    this.showNotification(`Verification failed: ${error.message}`, 'error');
-                    throw error;
-                }
-            }
-            
-            async createListing(listingData) {
-                try {
-                    const result = await this.apiCall('/listings', {
-                        method: 'POST',
-                        body: JSON.stringify(listingData)
-                    });
-                    
-                    this.listings.unshift(result.listing);
-                    this.renderListings();
-                    this.showNotification('Trade posted successfully!', 'success');
-                    return result;
-                } catch (error) {
-                    this.showNotification('Failed to create listing.', 'error');
-                    throw error;
-                }
-            }
-            
-            // UI Methods
             setupEventListeners() {
                 document.getElementById('verifyBtn').addEventListener('click', () => this.openVerificationModal());
                 document.getElementById('bannerVerifyBtn').addEventListener('click', () => this.openVerificationModal());
@@ -1089,6 +1036,9 @@
                 const emptyState = document.getElementById('emptyState');
                 const listingCounter = document.getElementById('listingCounter');
                 
+                // Hide loading spinner
+                grid.innerHTML = '';
+                
                 let filteredListings = this.listings;
                 if (this.currentGameFilter !== 'all') {
                     filteredListings = this.listings.filter(l => l.game === this.currentGameFilter);
@@ -1104,7 +1054,6 @@
                 
                 grid.style.display = 'grid';
                 emptyState.style.display = 'none';
-                grid.innerHTML = '';
                 
                 filteredListings.forEach(listing => {
                     const card = this.createListingCard(listing);
@@ -1157,16 +1106,14 @@
                         </div>
                     </div>
                     
-                    ${listing.proofUrl ? `
                     <div class="proof-section">
                         <button class="btn btn-secondary proof-btn" onclick="tradingApp.toggleProof(this)">
                             <i class="fas fa-image"></i> View Proof
                         </button>
-                        <div class="proof-image">
+                        <div class="proof-image" style="display: none;">
                             <img src="${listing.proofUrl}" alt="Proof of items">
                         </div>
                     </div>
-                    ` : ''}
                     
                     <div class="trade-actions">
                         <button class="action-btn btn-primary" onclick="tradingApp.initiateTrade('${listing.id}')">Offer Trade</button>
@@ -1215,7 +1162,11 @@
                     this.showNotification('Roblox account found!', 'success');
                     
                 } catch (error) {
-                    this.showNotification(error.message, 'error');
+                    this.showNotification('Failed to find user. Using demo mode.', 'error');
+                    // Fallback to demo data
+                    document.getElementById('profileUsername').textContent = username;
+                    document.getElementById('displayName').value = username;
+                    this.showVerificationStep(2);
                 } finally {
                     document.getElementById('findAccountBtn').innerHTML = 'Find Account';
                     document.getElementById('findAccountBtn').disabled = false;
@@ -1231,19 +1182,41 @@
                 document.getElementById('verifyAccountBtn').disabled = true;
                 
                 try {
-                    await this.verifyAccount(username, displayName, verificationCode);
+                    await this.verifyRobloxProfile(null, verificationCode);
+                    
+                    // Create user profile
+                    this.verifiedUser = {
+                        id: 'user_' + Date.now(),
+                        username: username,
+                        displayName: displayName,
+                        pfpUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&size=150&background=random`,
+                        isVerified: true,
+                        level: 1,
+                        tradesCompleted: 0
+                    };
+                    
+                    // Save to localStorage
+                    localStorage.setItem(this.databaseName + '_currentUser', JSON.stringify(this.verifiedUser));
+                    
+                    this.showNotification('Account verified successfully!', 'success');
                     this.closeModal('verificationModal');
                     this.updateUI();
+                    
                 } catch (error) {
-                    // Error handled in verifyAccount
+                    this.showNotification('Verification failed. Using demo mode.', 'error');
                 } finally {
                     document.getElementById('verifyAccountBtn').innerHTML = 'Verify Profile';
                     document.getElementById('verifyAccountBtn').disabled = false;
                 }
             }
             
-            async handleCreateForm(e) {
+            handleCreateForm(e) {
                 e.preventDefault();
+                
+                if (!this.verifiedUser) {
+                    this.showNotification('Please verify your account first', 'error');
+                    return;
+                }
                 
                 const game = document.getElementById('gameSelect').value;
                 const offer = document.getElementById('offerItems').value;
@@ -1255,40 +1228,32 @@
                     return;
                 }
                 
-                const listingData = {
-                    game,
-                    offer,
-                    request,
-                    proofUrl: proofUrl || 'https://via.placeholder.com/400x200/374151/ffffff?text=Inventory+Proof'
+                // Create new listing
+                const newListing = {
+                    id: 'listing_' + Date.now(),
+                    makerId: this.verifiedUser.id,
+                    makerName: this.verifiedUser.displayName,
+                    makerUsername: this.verifiedUser.username,
+                    makerPfp: this.verifiedUser.pfpUrl,
+                    makerVerified: true,
+                    game: game,
+                    offer: offer,
+                    request: request,
+                    proofUrl: proofUrl || 'https://picsum.photos/400/200?random=' + Date.now(),
+                    createdAt: new Date().toISOString(),
+                    views: 0,
+                    likes: 0,
+                    status: 'open'
                 };
                 
-                const submitBtn = e.target.querySelector('button[type="submit"]');
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
-                submitBtn.disabled = true;
+                // Save to localStorage
+                this.listings.unshift(newListing);
+                localStorage.setItem(this.databaseName + '_listings', JSON.stringify(this.listings));
                 
-                try {
-                    await this.createListing(listingData);
-                    e.target.reset();
-                    this.closeModal('createModal');
-                } catch (error) {
-                    submitBtn.innerHTML = 'Post Trade Offer';
-                    submitBtn.disabled = false;
-                }
-            }
-            
-            // Database Schema Information
-            getDatabaseInfo() {
-                return {
-                    name: 'robloxtradehub_db',
-                    tables: {
-                        users: 'User authentication and profiles',
-                        listings: 'Trade listings with game, items, proof',
-                        games: 'Supported Roblox games metadata',
-                        messages: 'User-to-user communications',
-                        trades: 'Completed trade history'
-                    },
-                    relationships: 'Users ↔ Listings ↔ Games ↔ Trades'
-                };
+                this.showNotification('Trade posted successfully!', 'success');
+                this.renderListings();
+                this.closeModal('createModal');
+                e.target.reset();
             }
             
             initiateTrade(listingId) {
@@ -1296,7 +1261,7 @@
                     this.openVerificationModal();
                     return;
                 }
-                this.showNotification('Trade offer initiated! The trader will contact you soon.', 'success');
+                this.showNotification('Trade offer initiated!', 'success');
             }
             
             messageUser(userId) {
@@ -1304,7 +1269,7 @@
                     this.openVerificationModal();
                     return;
                 }
-                this.showNotification('Messaging feature will be available soon!', 'info');
+                this.showNotification('Messaging feature coming soon!', 'success');
             }
             
             openModal(modalId) {
@@ -1353,16 +1318,12 @@
             copyVerificationCode() {
                 const code = document.getElementById('verificationCode').textContent;
                 navigator.clipboard.writeText(code).then(() => {
-                    const btn = document.getElementById('copyCodeBtn');
-                    btn.innerHTML = '<i class="fas fa-check"></i>';
-                    setTimeout(() => {
-                        btn.innerHTML = '<i class="fas fa-copy"></i>';
-                    }, 2000);
+                    this.showNotification('Verification code copied!', 'success');
                 });
             }
             
             logout() {
-                localStorage.removeItem('robloxhub_token');
+                localStorage.removeItem(this.databaseName + '_currentUser');
                 this.verifiedUser = null;
                 this.currentUser = null;
                 this.updateUI();
@@ -1385,8 +1346,8 @@
                     
                     const avatar = document.getElementById('userAvatar');
                     avatar.textContent = this.verifiedUser.displayName.charAt(0);
-                    if (this.verifiedUser.avatarUrl) {
-                        avatar.innerHTML = `<img src="${this.verifiedUser.avatarUrl}" alt="${this.verifiedUser.displayName}">`;
+                    if (this.verifiedUser.pfpUrl) {
+                        avatar.innerHTML = `<img src="${this.verifiedUser.pfpUrl}" alt="${this.verifiedUser.displayName}">`;
                     }
                     
                     createBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Post Trade';
@@ -1415,7 +1376,14 @@
             }
             
             showNotification(message, type = 'success') {
-                alert(`${type.toUpperCase()}: ${message}`); // Simple alert for demo
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.className = `notification ${type}`;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
             }
             
             getTimeAgo(dateString) {
@@ -1436,7 +1404,6 @@
         // Initialize the application
         document.addEventListener('DOMContentLoaded', () => {
             window.tradingApp = new RobloxTradePlatform();
-            console.log('Database Schema:', window.tradingApp.getDatabaseInfo());
         });
     </script>
 </body>
